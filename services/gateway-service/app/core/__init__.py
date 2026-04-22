@@ -1,0 +1,1 @@
+"""Core components and configuration for the gateway service."""

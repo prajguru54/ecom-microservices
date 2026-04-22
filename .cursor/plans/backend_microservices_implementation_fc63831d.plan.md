@@ -238,6 +238,7 @@ graph TB
 - Alembic migrations for schema management
 
 **Key Migration Files**:
+
 - [`services/catalog-service/alembic.ini`](services/catalog-service/alembic.ini)
 - [`services/catalog-service/migrations/env.py`](services/catalog-service/migrations/env.py)
 - [`services/catalog-service/migrations/versions/001_create_categories.py`](services/catalog-service/migrations/versions/001_create_categories.py)
@@ -428,9 +429,11 @@ sequenceDiagram
 ## Alembic Migration Strategy
 
 ### Per-Service Migration Setup
+
 Each service that uses a database will have its own Alembic configuration:
 
 **Service Structure with Alembic**:
+
 ```
 services/{service-name}/
 ├── app/
@@ -447,11 +450,13 @@ services/{service-name}/
 ```
 
 **Key Alembic Files per Service**:
+
 - **alembic.ini**: Configuration pointing to service-specific database
 - **migrations/env.py**: Environment setup with service models import
 - **migrations/versions/**: Auto-generated migration files
 
 **Migration Commands per Service**:
+
 ```bash
 # Initialize Alembic (one-time setup)
 cd services/{service-name}
@@ -469,6 +474,7 @@ alembic downgrade -1
 ```
 
 ### Database Connection Strategy
+
 Each service connects to its own database using environment variables:
 
 **Auth Service**: `DATABASE_URL=postgresql://user:pass@localhost:5432/auth_db`
@@ -478,11 +484,13 @@ Each service connects to its own database using environment variables:
 **Inventory Service**: `DATABASE_URL=postgresql://user:pass@localhost:5432/inventory_db`
 
 ### Migration Workflow
+
 1. **Development**: Run migrations locally after model changes
 2. **Testing**: Use separate test databases with fresh migrations
 3. **Production**: Include migration step in deployment scripts
 
 **Development Scripts**:
+
 ```bash
 # Run all service migrations
 ./scripts/migrate-all.sh

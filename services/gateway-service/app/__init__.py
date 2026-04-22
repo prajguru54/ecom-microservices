@@ -1,1 +1,1 @@
-
+"""Gateway Service - API Gateway for E-commerce Microservices."""

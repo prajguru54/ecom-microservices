@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+---
+- After implementation of each phase from the execution plan, make sure that tests passes, if not fix the same before confirming completion.
