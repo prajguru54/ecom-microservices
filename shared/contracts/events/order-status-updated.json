@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OrderStatusUpdatedEvent",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "occurred_at",
+    "order_id",
+    "previous_status",
+    "current_status"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "event_type": {
+      "type": "string",
+      "const": "order.status_updated"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "order_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "previous_status": {
+      "type": "string"
+    },
+    "current_status": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    }
+  }
+}

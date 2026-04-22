@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment files
+.env
+services/*/.env
+
+# IDE and OS
+.DS_Store
+.idea/
+.vscode/
+
+# Logs and runtime artifacts
+*.log
+
+# Frontend build/runtime artifacts
+frontend/node_modules/
+frontend/dist/
