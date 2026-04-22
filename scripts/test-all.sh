@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Runs service-level tests for each backend service that has a local .venv.
+# Complements scripts/lint-all.sh in the validation flow.
+# After tests pass, use scripts/smoke-test.sh for basic runtime checks.
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 

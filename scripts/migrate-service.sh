@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Applies Alembic migrations for one service.
+# Used by scripts/migrate-all.sh, but can be run directly for targeted updates.
+# Expects per-service virtual env at services/<service>/.venv.
+
 if [[ $# -ne 1 ]]; then
   echo "Usage: $0 <service-name>"
   echo "Example: $0 auth-service"

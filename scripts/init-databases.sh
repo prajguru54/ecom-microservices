@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Bootstraps PostgreSQL initialization for first-time setup.
+# Databases are created by infra/postgres/init/001-create-databases.sql
+# when the postgres data volume is empty.
+# Usually run before migration scripts.
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 

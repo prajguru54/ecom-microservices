@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Runs lint checks for each backend service that has a local .venv.
+# This is independent from migrations but typically used in the same dev cycle
+# with scripts/test-all.sh before committing changes.
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 

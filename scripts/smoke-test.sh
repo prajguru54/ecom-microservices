@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Performs quick health checks against running infrastructure endpoints.
+# Intended to run after scripts/dev-up.sh to confirm core services are reachable.
+
 check_url() {
   local url="$1"
   if curl -fsS "${url}" >/dev/null 2>&1; then
