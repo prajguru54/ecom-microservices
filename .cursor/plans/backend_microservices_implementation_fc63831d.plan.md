@@ -4,19 +4,19 @@ overview: Build complete backend microservices architecture from scratch with JW
 todos:
     - id: setup-infrastructure
       content: Create Docker Compose setup with PostgreSQL (multi-db), Redis, RabbitMQ, Nginx, Prometheus, Grafana
-      status: pending
+      status: completed
     - id: create-repo-structure
       content: Set up monorepo folder structure with services/, infra/, shared/, scripts/ directories
-      status: pending
+      status: completed
     - id: setup-alembic-migrations
       content: Configure Alembic for each service with separate database connections and migration environments
-      status: pending
+      status: in_progress
     - id: implement-auth-service
       content: Build JWT-based auth service with user registration/login, token validation
-      status: pending
+      status: completed
     - id: implement-gateway-service
       content: Create API gateway with request routing, auth middleware, rate limiting
-      status: pending
+      status: completed
     - id: implement-catalog-service
       content: Build product catalog service with Redis caching and database operations
       status: pending
@@ -34,17 +34,35 @@ todos:
       status: pending
     - id: setup-observability
       content: Configure Prometheus metrics collection and Grafana dashboards
-      status: pending
+      status: in_progress
     - id: add-service-tests
       content: Implement unit and integration tests for each service
-      status: pending
+      status: in_progress
     - id: create-dev-tooling
       content: Add development scripts for starting/stopping services and running tests
-      status: pending
+      status: completed
 isProject: false
 ---
 
 # Backend Microservices Implementation Plan
+
+## Current Implementation Status (Updated: 2026-04-22)
+
+### Completed
+
+- Phase 1 foundation structure is in place (repo layout, Docker Compose stack, infra folders, core scripts, event contracts).
+- Auth service is implemented with JWT auth endpoints and tests.
+- Gateway service is implemented with routing, auth middleware, rate limiting, health checks, packaging config, and tests.
+
+### In Progress
+
+- Alembic is configured across services (`alembic.ini` and migration environments exist), but versioned migration files are still pending.
+- Observability infrastructure exists (Prometheus/Grafana config and provisioning), but service-level metrics coverage is not complete across all services.
+- Service testing framework has started (auth and gateway), but complete unit/integration coverage for all services is pending.
+
+### Not Started / Pending
+
+- Catalog, Cart, Order, Inventory, and Notification service implementations are still pending in this plan.
 
 ## Architecture Overview
 
