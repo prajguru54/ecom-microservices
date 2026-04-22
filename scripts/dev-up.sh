@@ -13,6 +13,6 @@ if [[ ! -f ".env" ]]; then
 fi
 
 echo "Starting infra services (postgres, redis, rabbitmq, nginx, prometheus, grafana)..."
-docker compose up -d postgres redis rabbitmq nginx prometheus grafana
+docker compose up -d postgres redis rabbitmq nginx prometheus grafana --build
 
 echo "Infra is starting. Use 'docker compose ps' to verify health."
