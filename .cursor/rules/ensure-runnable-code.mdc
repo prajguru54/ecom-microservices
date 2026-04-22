@@ -2,3 +2,6 @@
 alwaysApply: true
 ---
 - After implementation of each phase from the execution plan, make sure that tests passes, if not fix the same before confirming completion.
+- If alembic upgrade is required then it's fine, just let me know, I will execute those myself. DO NOT run the migrations yourself
+- DO NOT go inside the container and insert data into db. That's not a good way.
+    rather let me know if any such requirement is there. I will take a call

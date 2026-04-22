@@ -23,6 +23,9 @@ RUN pip install -e .
 # Copy application code
 COPY . .
 
+# Configure container entrypoint
+RUN chmod +x /app/entrypoint.sh
+
 # Create non-root user
 RUN useradd --create-home --shell /bin/bash app \
     && chown -R app:app /app
@@ -35,5 +38,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # Expose port
 EXPOSE 8003
 
-# Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8003"]
+# Run migrations (if any) and start the application
+CMD ["/app/entrypoint.sh"]
