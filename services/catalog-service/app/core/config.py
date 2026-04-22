@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     SERVICE_NAME: str = Field(default="catalog-service", description="Service name")
     SERVICE_PORT: int = Field(default=8004, description="Service port")
     DATABASE_URL: str = Field(
-        default="postgresql+psycopg://ecom_user:change_me@localhost:5432/catalog_db",
+        default="postgresql+psycopg://ecom_user:change_me@localhost:5434/catalog_db",
         description="Database URL"
     )
     REDIS_URL: str = Field(

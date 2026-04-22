@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     
     # Database configuration
     database_url: str = Field(
-        default="postgresql+psycopg://ecom_user:change_me@localhost:5432/auth_db"
+        default="postgresql+psycopg://ecom_user:change_me@localhost:5434/auth_db"
     )
     
     # JWT configuration
