@@ -18,7 +18,11 @@ database_url = os.getenv("DATABASE_URL")
 if database_url:
     config.set_main_option("sqlalchemy.url", database_url)
 
-target_metadata = None
+# Import all models to ensure they are registered with SQLAlchemy
+from app.models.user import User  # noqa: F401
+from app.database import Base
+
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
