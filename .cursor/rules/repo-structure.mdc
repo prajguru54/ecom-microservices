@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+- This is a mono repo which has all the backend microservices as well as the frontend.
+- Be careful about the current directory while running the terminal commands
+- For any Backend related commands, always go inside that specific microservice folder and activate the virtual env using the command 'source .venv/bin/activate'
