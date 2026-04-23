@@ -2,15 +2,33 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { Minus, Plus, Check } from "lucide-react";
 import { toast } from "sonner";
-import { formatPrice, getProduct, PRODUCTS } from "@/lib/products";
+import { fetchProduct, fetchProductsByCategory } from "@/lib/catalogApi";
+import { formatPrice, mapProductResponseToProduct } from "@/lib/products";
 import { useCart } from "@/store/cart";
 import { ProductCard } from "@/components/ProductCard";
 
 export const Route = createFileRoute("/product/$id")({
-  loader: ({ params }) => {
-    const product = getProduct(params.id);
-    if (!product) throw notFound();
-    return { product };
+  loader: async ({ params }) => {
+    const id = Number(params.id);
+    if (!Number.isInteger(id) || id < 1) throw notFound();
+    try {
+      const raw = await fetchProduct(id);
+      const product = mapProductResponseToProduct(raw);
+      const categoryId = raw.category_id;
+      let relatedRaw: Awaited<ReturnType<typeof fetchProductsByCategory>> = [];
+      try {
+        relatedRaw = await fetchProductsByCategory(categoryId, { limit: 12 });
+      } catch {
+        relatedRaw = [];
+      }
+      const related = relatedRaw
+        .filter((p) => p.id !== id)
+        .slice(0, 3)
+        .map(mapProductResponseToProduct);
+      return { product, related };
+    } catch {
+      throw notFound();
+    }
   },
   head: ({ loaderData }) =>
     loaderData
@@ -27,22 +45,25 @@ export const Route = createFileRoute("/product/$id")({
   notFoundComponent: () => (
     <div className="container-page py-24 text-center">
       <h1 className="font-display text-4xl">Product not found</h1>
-      <Link to="/" className="mt-4 inline-block text-accent underline">Return to shop</Link>
+      <Link to="/" className="mt-4 inline-block text-accent underline">
+        Return to shop
+      </Link>
     </div>
   ),
   component: ProductPage,
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
+  const { product, related } = Route.useLoaderData();
   const { add } = useCart();
   const [qty, setQty] = useState(1);
-  const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3);
 
   return (
     <>
       <div className="container-page pt-6 text-xs text-muted-foreground">
-        <Link to="/" className="hover:text-foreground">Shop</Link>
+        <Link to="/" className="hover:text-foreground">
+          Shop
+        </Link>
         <span className="mx-2">/</span>
         <span className="text-foreground">{product.name}</span>
       </div>

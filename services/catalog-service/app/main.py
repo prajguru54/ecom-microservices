@@ -1,6 +1,7 @@
 """
 Main FastAPI application for the catalog service.
 """
+
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 

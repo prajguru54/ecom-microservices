@@ -137,12 +137,34 @@ services:
       retries: 5
       start_period: 20s
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_CATALOG_BASE_URL: ${FRONTEND_CATALOG_BASE_URL}
+        VITE_CATALOG_SERVER_URL: ${FRONTEND_CATALOG_SERVER_URL}
+    container_name: ecom-frontend
+    restart: unless-stopped
+    depends_on:
+      gateway-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/health >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   nginx:
     image: nginx:1.27-alpine
     container_name: ecom-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - target: 80
+        published: "${NGINX_HTTP_PORT}"
+        protocol: tcp
+        mode: host
     volumes:
       - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./infra/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
@@ -156,6 +178,8 @@ services:
       postgres:
         condition: service_started
       gateway-service:
+        condition: service_healthy
+      frontend:
         condition: service_healthy
 
   prometheus:

@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { Search, X } from "lucide-react";
-import { CATEGORIES, PRODUCTS, type Category } from "@/lib/products";
-import { ProductCard } from "@/components/ProductCard";
+import { fetchProducts, fetchRootCategories } from "@/lib/catalogApi";
+import { mapProductResponseToProduct, type Product } from "@/lib/products";
+import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
 
 const searchSchema = z.object({
   cat: fallback(z.string(), "all").default("all"),
@@ -13,6 +14,51 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/")({
   validateSearch: zodValidator(searchSchema),
+  loaderDeps: ({ search }) => ({ cat: search.cat, q: search.q }),
+  loader: async ({ deps }) => {
+    const categoryId =
+      deps.cat !== "all" && deps.cat !== "" && Number.isFinite(Number(deps.cat))
+        ? Number(deps.cat)
+        : undefined;
+    const q = deps.q.trim();
+    // Catalog GET /products applies search OR category_id (not both); combine in the loader when needed.
+    const [categories, productRows] = await Promise.all([
+      fetchRootCategories(),
+      fetchProducts({
+        search: q || undefined,
+        categoryId: categoryId !== undefined && !q ? categoryId : undefined,
+        limit: 100,
+        activeOnly: true,
+      }),
+    ]);
+    const refined =
+      q && categoryId !== undefined
+        ? productRows.filter((p) => p.category_id === categoryId)
+        : productRows;
+
+    const categoryFilters: { id: string; label: string }[] = [
+      { id: "all", label: "All" },
+      ...categories.map((c) => ({ id: String(c.id), label: c.name })),
+    ];
+
+    const products: Product[] = refined.map(mapProductResponseToProduct);
+
+    return { categoryFilters, products };
+  },
+  pendingComponent: ShopPending,
+  errorComponent: ({ error }) => (
+    <div className="container-page py-24">
+      <h2 className="font-display text-2xl">Could not load catalog</h2>
+      <p className="mt-2 text-sm text-muted-foreground">
+        {error instanceof Error ? error.message : String(error)}
+      </p>
+      <p className="mt-4 text-xs text-muted-foreground">
+        Ensure catalog-service is running and{" "}
+        <code className="rounded bg-muted px-1">VITE_CATALOG_BASE_URL</code> is set (see{" "}
+        <code className="rounded bg-muted px-1">frontend/.env.example</code>).
+      </p>
+    </div>
+  ),
   head: () => ({
     meta: [
       { title: "Shop — Atelier" },
@@ -22,23 +68,27 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+function ShopPending() {
+  return (
+    <div className="container-page py-12">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {Array.from({ length: 8 }, (_, i) => (
+          <ProductCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Index() {
   const { cat, q } = Route.useSearch();
   const navigate = Route.useNavigate();
+  const { categoryFilters, products } = Route.useLoaderData();
   const [query, setQuery] = useState(q);
 
-  const filtered = useMemo(() => {
-    const term = q.trim().toLowerCase();
-    return PRODUCTS.filter((p) => {
-      if (cat !== "all" && p.category !== cat) return false;
-      if (!term) return true;
-      return (
-        p.name.toLowerCase().includes(term) ||
-        p.tagline.toLowerCase().includes(term) ||
-        p.material.toLowerCase().includes(term)
-      );
-    });
-  }, [cat, q]);
+  useEffect(() => {
+    setQuery(q);
+  }, [q]);
 
   return (
     <>
@@ -50,7 +100,8 @@ function Index() {
               Spring Edit · 2026
             </div>
             <h1 className="mt-4 font-display text-5xl leading-[1.05] text-balance md:text-7xl">
-              Objects shaped by hand,<br />
+              Objects shaped by hand,
+              <br />
               <span className="italic text-accent">chosen with care.</span>
             </h1>
           </div>
@@ -65,7 +116,7 @@ function Index() {
       <section className="container-page sticky top-16 z-30 -mt-2 border-b border-border bg-background/85 py-4 backdrop-blur">
         <div className="flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">
           <div className="flex flex-wrap gap-1.5">
-            {CATEGORIES.map((c) => {
+            {categoryFilters.map((c) => {
               const active = cat === c.id;
               return (
                 <Link
@@ -118,7 +169,7 @@ function Index() {
 
       {/* Grid */}
       <section className="container-page py-12">
-        {filtered.length === 0 ? (
+        {products.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border py-24 text-center">
             <h3 className="font-display text-2xl">Nothing matches.</h3>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -134,7 +185,7 @@ function Index() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((p) => (
+            {products.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
@@ -143,6 +194,3 @@ function Index() {
     </>
   );
 }
-
-// Type narrowing helper for typescript on filter ids
-export type _Cat = Category;

@@ -66,7 +66,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
         # Check prefix matches for GET requests to products
         if method == "GET" and path.startswith("/api/products"):
             return True
-        
+
+        # Public category reads (nested paths e.g. /api/categories/root)
+        if method == "GET" and path.startswith("/api/categories"):
+            return True
+
         # Check for health checks and docs
         if path.startswith("/health") or path in ["/docs", "/openapi.json", "/redoc"]:
             return True

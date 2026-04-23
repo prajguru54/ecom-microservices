@@ -12,6 +12,30 @@ from ..core.service_registry import ServiceRegistry
 logger = logging.getLogger(__name__)
 
 
+def _build_upstream_target_path(
+    request: Request,
+    should_strip: bool,
+    path_suffix: str,
+    upstream_prefix: str | None,
+) -> str:
+    """Map gateway path to the upstream service path."""
+    if not should_strip:
+        target_path = request.url.path
+    else:
+        remainder = f"/{path_suffix}" if path_suffix else ""
+        if upstream_prefix:
+            base = upstream_prefix.rstrip("/")
+            if not remainder:
+                target_path = f"{base}/"
+            else:
+                target_path = f"{base}{remainder}"
+        else:
+            target_path = remainder if remainder else "/"
+    if not target_path.startswith("/"):
+        target_path = f"/{target_path}"
+    return target_path
+
+
 async def proxy_request(
     request: Request,
     service_name: str,
@@ -111,19 +135,22 @@ def register_proxy_routes(app: FastAPI):
     for service_name, route_config in SERVICE_ROUTES.items():
         prefix = route_config["prefix"]
         strip_prefix = route_config.get("strip_prefix", False)
-        
-        def make_proxy_handler(svc_name: str, should_strip: bool):
+        upstream_prefix = route_config.get("upstream_prefix")
+        if upstream_prefix is not None and not isinstance(upstream_prefix, str):
+            upstream_prefix = None
+
+        def make_proxy_handler(
+            svc_name: str,
+            should_strip: bool,
+            us_prefix: str | None,
+        ):
             """Create a proxy handler for a specific service."""
+
             async def proxy_handler(request: Request, path: str = ""):
-                # Determine the target path
-                target_path = request.url.path
-                if should_strip:
-                    target_path = f"/{path}" if path else "/"
-
+                target_path = _build_upstream_target_path(
+                    request, should_strip, path, us_prefix
+                )
                 service_registry = request.app.state.service_registry
-
-                if not target_path.startswith("/"):
-                    target_path = f"/{target_path}"
 
                 return await proxy_request(
                     request=request,
@@ -131,11 +158,11 @@ def register_proxy_routes(app: FastAPI):
                     path=target_path,
                     service_registry=service_registry,
                 )
-            
+
             return proxy_handler
-        
+
         # Create the handler
-        handler = make_proxy_handler(service_name, strip_prefix)
+        handler = make_proxy_handler(service_name, strip_prefix, upstream_prefix)
         
         # Add route with catch-all path
         route_path = f"{prefix}/{{path:path}}"
