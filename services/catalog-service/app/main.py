@@ -42,7 +42,7 @@ def create_app() -> FastAPI:
     instrumentator.expose(app)
 
     # Include routers
-    app.include_router(health.router, prefix="/health", tags=["health"])
+    app.include_router(health.router)
     app.include_router(products.router, prefix="/products", tags=["products"])
     app.include_router(
         categories.router,

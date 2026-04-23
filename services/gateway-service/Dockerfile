@@ -16,8 +16,8 @@ RUN apt-get update \
         gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY pyproject.toml ./
+# Install Python dependencies (README.md required by hatchling metadata)
+COPY pyproject.toml README.md ./
 RUN pip install -e .
 
 # Copy application code

@@ -2,15 +2,16 @@
 Health check endpoints.
 """
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cache import get_redis_client
 from app.database import get_db
 
-router = APIRouter()
+router = APIRouter(tags=["health"])
 
 
-@router.get("/")
+@router.get("/health")
 async def health_check():
     """
     Basic health check endpoint.
@@ -22,14 +23,14 @@ async def health_check():
     }
 
 
-@router.get("/ready")
+@router.get("/health/ready")
 async def readiness_check(db: AsyncSession = Depends(get_db)):
     """
     Readiness check with database connectivity.
     """
     try:
         # Check database connectivity
-        await db.execute("SELECT 1")
+        await db.execute(text("SELECT 1"))
         
         # Check Redis connectivity
         redis_client = await get_redis_client()

@@ -9,7 +9,9 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    curl \
     gcc \
+    libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv for faster dependency management
@@ -29,8 +31,8 @@ RUN chmod +x /app/entrypoint.sh
 EXPOSE 8001
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8001/health')" || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=5 \
+    CMD curl -f http://localhost:8001/health || exit 1
 
 # Run migrations and start the application
 CMD ["/app/entrypoint.sh"]
